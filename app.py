@@ -63,7 +63,12 @@ def load_csv():
     CACHE["df"] = df
     CACHE["timestamp"] = now
 
+    # --- 検索用キャッシュ列を作成 ---
+    SEARCH_COLUMNS = ["名前", "名前2", "品名"]  
+    df["_search"] = df[SEARCH_COLUMNS].astype(str).agg(" ".join, axis=1).str.lower()
+
     return df
+
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -105,7 +110,7 @@ def index():
     #     result = df.head()
 
     if keyword:
-        result = df[df[SEARCH_COLUMNS].astype(str).apply(
+        result = df[df["_search"].astype(str).apply(
             lambda row: row.str.contains(keyword, case=False).any(),
             axis=1
         )]
