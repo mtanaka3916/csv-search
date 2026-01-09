@@ -112,12 +112,6 @@ def index():
     else:
         result = df
 
-@app.route("/")
-def root():
-    return redirect("/login")
-
-
-
     # カード型レイアウト生成
 
     DISPLAY_COLUMNS = ["日付", "名前", "名前2", "品名", "仕入kg", "仕入単価", "仕入金額", "売上kg", "売上単価", "売上金額"]
@@ -198,3 +192,8 @@ def root():
     """
 
     return html
+
+
+@app.route("/")
+def root():
+    return redirect("/login")
