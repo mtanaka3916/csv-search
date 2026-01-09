@@ -103,17 +103,12 @@ def login():
 def index():
     keyword = request.args.get("q", "")
     df = load_csv()
-
-    # if keyword:
-    #     result = df[df.apply(lambda row: row.astype(str).str.contains(keyword, case=False).any(), axis=1)]
-    # else:
-    #     result = df.head()
-
+    
     if keyword:
         keyword_lower = keyword.lower()
         result = df[df["_search"].str.contains(keyword_lower, na=False)]
     else:
-        result = df
+        result = pd.DataFrame()
 
     # カード型レイアウト生成
 
