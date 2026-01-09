@@ -66,13 +66,6 @@ def load_csv():
     return df
 
 
-# @app.before_request
-# def check_access_key():
-#     key = request.args.get("key")
-#     if key != ACCESS_KEY:
-#         return "Access Denied", 403
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
