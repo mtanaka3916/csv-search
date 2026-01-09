@@ -40,6 +40,9 @@ def load_csv():
     r = requests.get(CSV_URL)
     df = pd.read_csv(io.StringIO(r.text))
 
+    # 列名を日本語に変換
+    df = df.rename(columns=COLUMN_MAP)
+
     if set(["year", "month", "day"]).issubset(df.columns):
         df["日付"] = pd.to_datetime(df[["year", "month", "day"]], errors="coerce").dt.strftime("%Y-%m-%d")
         df = df.drop(columns=["year", "month", "day"])
@@ -60,15 +63,17 @@ def load_csv():
     if "日付" in df.columns:
         df = df.sort_values("日付", ascending=False)
 
+
+
+    # --- 検索用キャッシュ列を作成 ---
+    SEARCH_COLUMNS = ["名前", "名前2", "品名"] 
+    valid_cols = [c for c in SEARCH_COLUMNS if c in df.columns]
+    df["_search"] = df[SEARCH_COLUMNS].astype(str).agg(" ".join, axis=1).str.lower()
+
     CACHE["df"] = df
     CACHE["timestamp"] = now
 
-    # --- 検索用キャッシュ列を作成 ---
-    SEARCH_COLUMNS = ["名前", "名前2", "品名"]  
-    df["_search"] = df[SEARCH_COLUMNS].astype(str).agg(" ".join, axis=1).str.lower()
-
     return df
-
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -99,8 +104,7 @@ def index():
     keyword = request.args.get("q", "")
     df = load_csv()
 
-    # 列名を日本語に変換
-    df = df.rename(columns=COLUMN_MAP)
+
 
     SEARCH_COLUMNS = ["名前", "名前2", "品名"]
 
