@@ -43,9 +43,9 @@ def load_csv():
     # 列名を日本語に変換
     df = df.rename(columns=COLUMN_MAP)
 
-    if set(["year", "month", "day"]).issubset(df.columns):
-        df["日付"] = pd.to_datetime(df[["year", "month", "day"]], errors="coerce").dt.strftime("%Y-%m-%d")
-        df = df.drop(columns=["year", "month", "day"])
+    if set(["年", "月", "日"]).issubset(df.columns):
+        df["日付"] = pd.to_datetime(df[["年", "月", "日"]], errors="coerce").dt.strftime("%Y-%m-%d")
+        df = df.drop(columns=["年", "月", "日"])
 
     for col in df.select_dtypes(include=["float", "int"]).columns:
         def format_number(x):
@@ -63,12 +63,10 @@ def load_csv():
     if "日付" in df.columns:
         df = df.sort_values("日付", ascending=False)
 
-
-
     # --- 検索用キャッシュ列を作成 ---
     SEARCH_COLUMNS = ["名前", "名前2", "品名"] 
     valid_cols = [c for c in SEARCH_COLUMNS if c in df.columns]
-    df["_search"] = df[SEARCH_COLUMNS].astype(str).agg(" ".join, axis=1).str.lower()
+    df["_search"] = df[valid_cols].astype(str).agg(" ".join, axis=1).str.lower()
 
     CACHE["df"] = df
     CACHE["timestamp"] = now
@@ -103,7 +101,7 @@ def login():
 def index():
     keyword = request.args.get("q", "")
     df = load_csv()
-    
+
     if keyword:
         keyword_lower = keyword.lower()
         result = df[df["_search"].str.contains(keyword_lower, na=False)]
