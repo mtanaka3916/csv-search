@@ -117,7 +117,7 @@ def index():
         card = "<div class='card'>"
 
         # --- 日付を一番上に ---
-        if "日付" in row:
+        if "日付" in row.index:
             card += f"<div class='row'><strong>日付</strong><br>{row['日付']}</div>"
 
         # --- その他の項目 ---
