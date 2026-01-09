@@ -10,7 +10,6 @@ app = Flask(__name__)
 CSV_URL = os.getenv("CSV_URL")
 ACCESS_KEY = os.getenv("ACCESS_KEY")
 
-# 列名 → 日本語の変換
 COLUMN_MAP = {
     "year": "年",
     "month": "月",
@@ -41,11 +40,11 @@ def load_csv():
     df = pd.read_csv(io.StringIO(r.text))
 
     # 列名を日本語に変換
-    df = df.rename(columns=COLUMN_MAP)
+    #df = df.rename(columns=COLUMN_MAP)
 
-    if set(["年", "月", "日"]).issubset(df.columns):
-        df["日付"] = pd.to_datetime(df[["年", "月", "日"]], errors="coerce").dt.strftime("%Y-%m-%d")
-        df = df.drop(columns=["年", "月", "日"])
+    if set(["year", "month", "day"]).issubset(df.columns):
+        df["日付"] = pd.to_datetime(df[["year", "month", "day"]], errors="coerce").dt.strftime("%Y-%m-%d")
+        df = df.drop(columns=["year", "month", "day"])
 
     for col in df.select_dtypes(include=["float", "int"]).columns:
         def format_number(x):
@@ -64,7 +63,7 @@ def load_csv():
         df = df.sort_values("日付", ascending=False)
 
     # --- 検索用キャッシュ列を作成 ---
-    SEARCH_COLUMNS = ["名前", "名前2", "品名"] 
+    SEARCH_COLUMNS = ["name1", "name2", "item"] 
     valid_cols = [c for c in SEARCH_COLUMNS if c in df.columns]
     df["_search"] = df[valid_cols].astype(str).agg(" ".join, axis=1).str.lower()
 
@@ -102,6 +101,8 @@ def index():
     keyword = request.args.get("q", "")
     df = load_csv()
 
+    df = df.rename(columns=COLUMN_MAP)
+
     if keyword:
         keyword_lower = keyword.lower()
         result = df[df["_search"].str.contains(keyword_lower, na=False)]
@@ -117,7 +118,7 @@ def index():
         card = "<div class='card'>"
 
         # --- 日付を一番上に ---
-        if "日付" in row.index:
+        if "日付" in row:
             card += f"<div class='row'><strong>日付</strong><br>{row['日付']}</div>"
 
         # --- その他の項目 ---
