@@ -115,7 +115,14 @@ def index():
 
     cards_html = ""
     for _, row in result.iterrows():
-        card = "<div class='card'>"
+        #card = "<div class='card'>"
+
+        bg_color = ""
+        if "仕入kg" in row.index and str(row["仕入kg"]).strip() != "":
+            bg_color = "purchase" 
+        if "売上kg" in row.index and str(row["売上kg"]).strip() != "":
+            bg_color = "sell" 
+        card = f"<div class='card {bg_color}'>"
 
         if "日付" in row:
             card += f"<div class='row'><strong>日付</strong><br>{row['日付']}</div>"
@@ -164,6 +171,14 @@ def index():
             padding: 12px;
             margin-bottom: 12px;
             background: #fafafa;
+        }}
+        
+        .card.purchase {{
+            background: #e6f2ff;  /* 薄い青 */
+        }}
+
+        .card.sell {{
+            background: #ffe6e6;  /* 薄い赤 */
         }}
 
         .row {{
